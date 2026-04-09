@@ -20,4 +20,4 @@ This is a simple full stack social media application.
 2. Open index.html in browser
 
 ## Author
-Your Name
+prachi khambhi
