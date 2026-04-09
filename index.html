@@ -1,0 +1,160 @@
+<!-- <!DOCTYPE html>
+<html>
+    <head>
+        <title>social app</title>
+        <link rel="stylesheet"href="style.css">
+    </head>
+    <body>
+        <h2> welcome to social media app</h2>
+        <h3>create post</h3>
+        <form onsubmit="createpost(event)">
+            <input type="text"id="user"placeholder="your name"><br><br>
+        <textarea id="content" placeholder="write sometime...."></textarea><br><br>
+        <button type ="submit">post</button>
+        </form>
+        <h3>all posts</h3>
+        <div id="posts"></div>
+        <script>
+            function createpost(event){
+                event.preventDefault();
+                const user= document.getElementById("user").value;
+                const content = document.getElementById("content").value;
+                fetch("http://127.0.0.1:3000/post"),{
+                    method:"post",
+                    headers:{
+                        "content-type":"application/json"
+                    },
+                    body: JSON.stringify({user,content})
+                }
+                .then(res => res.text())
+                .then(data => {
+                    alert(data);
+                    loadposts();
+                });
+            }
+            function loadposts(){
+                fetch("http://127.0.0.1:3000/posts")
+                .then(res =>res.json())
+                .then(data => {
+                    let html ="";
+                    data.forEach(post => {
+                        html += `<p><b>${post.user}:</b>${post.content}</p>`;
+                    });
+
+                    document.getElementById("posts").innerHTML=html;
+                });
+            }
+            setInterval(loadposts,1000);
+        </script>
+            
+    </body>
+</html> -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Social App</title>
+      <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+
+<h2>Create Post</h2>
+
+<form onsubmit="createpost(event)">
+  <input type="text" id="user" placeholder="Your Name"><br><br>
+  <textarea id="content" placeholder="Write something..."></textarea><br><br>
+  <button type="submit">Post</button>
+<button type="button" onclick="logout()">Logout</button>
+</form>
+
+<h2>All Posts</h2>
+<div id="posts"></div>
+
+<script>
+function createpost(event){
+    event.preventDefault();
+
+    const user = document.getElementById("user").value;
+    const content = document.getElementById("content").value;
+
+    fetch("http://127.0.0.1:3000/post", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ user, content })
+    })
+    .then(res => res.text())
+    .then(data => {
+        alert(data);
+        loadposts();
+        document.getElementById("user").value = "";
+document.getElementById("content").value = "";
+    });
+}
+
+function loadposts(){
+    fetch("http://127.0.0.1:3000/posts")
+    .then(res => res.json())
+    .then(data => {
+        let html = "";
+        data.forEach((post , index) => {
+           html += `<div class="post">
+  <p><b>${post.user}:</b> ${post.content}</p>
+  <p>❤️ Likes: ${post.likes}</p>
+  <button onclick="likePost(${index})">Like</button>
+
+  <br><br>
+  <input type="text" id="comment${index}" placeholder="Write comment">
+  <button type="button" onclick="addComment(${index})">Comment</button>
+
+  <div>
+    ${post.comments.map(c => `<p>💬 ${c}</p>`).join("")}
+  </div>
+</div>`;
+        });
+        document.getElementById("posts").innerHTML = html;
+    });
+}
+function likePost(index){
+  fetch("http://127.0.0.1:3000/like", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ index })
+  })
+  .then(res => res.text())
+  .then(data => {
+    loadposts();
+  });
+}
+function addComment(index){
+  const text = document.getElementById("comment" + index).value;
+
+  fetch("http://127.0.0.1:3000/comment", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ index, text })
+  })
+  .then(res => res.text())
+  .then(data => {
+    loadposts();
+    document.getElementById("comment" + index).value = "";
+  });
+}
+function logout(){
+  document.getElementById("posts").innerHTML = "";
+  alert("Logged out");
+}
+function logout(){
+  location.reload();
+}
+
+window.onload = loadposts;
+</script>
+
+</body>
+</html>
